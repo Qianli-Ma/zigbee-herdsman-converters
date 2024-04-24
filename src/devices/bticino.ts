@@ -4,6 +4,7 @@ import fz from '../converters/fromZigbee';
 import tz from '../converters/toZigbee';
 import * as reporting from '../lib/reporting';
 import extend from '../lib/extend';
+import * as ota from '../lib/ota';
 const e = exposes.presets;
 const ea = exposes.access;
 
@@ -13,7 +14,7 @@ const definitions: Definition[] = [
         model: 'K4003C/L4003C/N4003C/NT4003C',
         vendor: 'BTicino',
         description: 'Light switch with neutral',
-        fromZigbee: [fz.identify, fz.on_off, fz.K4003C_binary_input, fz.legrand_cluster_fc01],
+        fromZigbee: [fz.identify, fz.on_off, fz.K4003C_binary_input, fz.legrand_cluster_fc01, fz.legrand_led_in_dark],
         toZigbee: [tz.on_off, tz.legrand_settingEnableLedInDark, tz.legrand_settingEnableLedIfOn, tz.legrand_identify],
         exposes: [
             e.switch(), e.action(['identify', 'on', 'off']),
@@ -22,6 +23,7 @@ const definitions: Definition[] = [
             e.binary('led_if_on', ea.ALL, 'ON', 'OFF').withDescription('Enables the LED when the light is turned on'),
             e.enum('identify', ea.SET, ['blink']).withDescription(`Blinks the built-in LED to make it easier to find the device`),
         ],
+        ota: ota.zigbeeOTA,
         configure: async (device, coordinatorEndpoint, logger) => {
             const endpoint = device.getEndpoint(1);
             await reporting.bind(endpoint, coordinatorEndpoint, ['genIdentify', 'genOnOff', 'genBinaryInput']);
@@ -33,7 +35,7 @@ const definitions: Definition[] = [
         vendor: 'BTicino',
         description: 'Dimmer switch with neutral',
         extend: extend.light_onoff_brightness({noConfigure: true}),
-        fromZigbee: [fz.brightness, fz.identify, fz.on_off, fz.lighting_ballast_configuration, fz.legrand_cluster_fc01],
+        fromZigbee: [fz.brightness, fz.identify, fz.on_off, fz.lighting_ballast_configuration, fz.legrand_cluster_fc01, fz.legrand_led_in_dark],
         toZigbee: [tz.light_onoff_brightness, tz.legrand_settingEnableLedInDark, tz.legrand_settingEnableLedIfOn,
             tz.legrand_deviceMode, tz.legrand_identify, tz.ballast_config],
         exposes: [
@@ -48,6 +50,7 @@ const definitions: Definition[] = [
             e.binary('led_if_on', ea.ALL, 'ON', 'OFF').withDescription('Enables the LED when the light is turned on'),
             e.enum('identify', ea.SET, ['blink']).withDescription(`Blinks the built-in LED to make it easier to find the device`),
         ],
+        ota: ota.zigbeeOTA,
         configure: async (device, coordinatorEndpoint, logger) => {
             await extend.light_onoff_brightness().configure(device, coordinatorEndpoint, logger);
             const endpoint = device.getEndpoint(1);
@@ -67,7 +70,7 @@ const definitions: Definition[] = [
         vendor: 'BTicino',
         description: 'Shutter SW with level control',
         fromZigbee: [fz.identify, fz.ignore_basic_report, fz.ignore_zclversion_read, fz.bticino_4027C_binary_input_moving,
-            fz.cover_position_tilt],
+            fz.cover_position_tilt, fz.legrand_led_in_dark],
         toZigbee: [tz.bticino_4027C_cover_state, tz.bticino_4027C_cover_position, tz.legrand_identify,
             tz.legrand_settingEnableLedInDark],
         exposes: [
@@ -76,6 +79,7 @@ const definitions: Definition[] = [
                 `to see the switch in the dark`),
             e.enum('identify', ea.SET, ['blink']).withDescription(`Blinks the built-in LED to make it easier to find the device`),
         ],
+        ota: ota.zigbeeOTA,
         configure: async (device, coordinatorEndpoint, logger) => {
             const endpoint = device.getEndpoint(1);
             await reporting.bind(endpoint, coordinatorEndpoint, ['genBinaryInput', 'closuresWindowCovering', 'genIdentify']);
@@ -106,7 +110,7 @@ const definitions: Definition[] = [
         model: 'L4531C',
         vendor: 'BTicino',
         description: 'Power socket with power consumption monitoring',
-        fromZigbee: [fz.identify, fz.on_off, fz.electrical_measurement],
+        fromZigbee: [fz.identify, fz.on_off, fz.electrical_measurement, fz.legrand_led_in_dark],
         toZigbee: [tz.on_off, tz.legrand_settingEnableLedInDark, tz.legrand_identify],
         exposes: [e.switch(), e.action(['identify']), e.power(), e.voltage(), e.current()],
         configure: async (device, coordinatorEndpoint, logger) => {

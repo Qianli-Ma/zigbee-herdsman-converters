@@ -336,11 +336,18 @@ module.exports = [
         meta: {disableDefaultResponse: true},
     },
     {
+        zigbeeModel: ['GL-LB-001P'],
+        model: 'GL-LB-001P',
+        vendor: 'Gledopto',
+        description: 'Zigbee USB LED bar RGB+CCT (pro)',
+        extend: gledoptoExtend.light_onoff_brightness_colortemp_color({colorTempRange: [158, 495]}),
+    },
+    {
         zigbeeModel: ['GL-B-002P'],
         model: 'GL-B-002P',
         vendor: 'Gledopto',
         description: 'Zigbee smart filament LED bulb',
-        extend: gledoptoExtend.light_onoff_brightness_colortemp_color({colorTempRange: [158, 495]}),
+        extend: gledoptoExtend.light_onoff_brightness_colortemp({colorTempRange: [158, 495]}),
     },
     {
         zigbeeModel: ['GL-S-006P'],
@@ -630,6 +637,7 @@ module.exports = [
         model: 'GL-D-007P',
         vendor: 'Gledopto',
         description: 'Zigbee 12W anti-glare downlight RGB+CCT (pro)',
+        ota: ota.zigbeeOTA,
         extend: gledoptoExtend.light_onoff_brightness_colortemp_color({colorTempRange: [158, 495]}),
     },
     {
@@ -793,6 +801,6 @@ module.exports = [
         model: 'GL-B-004P',
         vendor: 'Gledopto',
         description: 'Filament LED light bulb E27 G95 7W pro',
-        extend: gledoptoExtend.light_onoff_brightness_colortemp_color({colorTempRange: [158, 495]}),
+        extend: gledoptoExtend.light_onoff_brightness_colortemp({colorTempRange: [158, 495]}),
     },
 ];

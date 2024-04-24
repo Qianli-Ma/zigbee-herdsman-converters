@@ -323,6 +323,11 @@ export function toCamelCase(value: KeyValueAny | string) {
     }
 }
 
+export function getLabelFromName(name: string) {
+    const label = name.replace(/_/g, ' ');
+    return label[0].toUpperCase() + label.slice(1);
+}
+
 export function saveSceneState(entity: Zh.Endpoint, sceneID: number, groupID: number, state: KeyValue, name: string) {
     const attributes = ['state', 'brightness', 'color', 'color_temp', 'color_mode'];
     if (!entity.meta.hasOwnProperty('scenes')) entity.meta.scenes = {};
@@ -434,7 +439,7 @@ export function normalizeCelsiusVersionOfFahrenheit(value: number) {
 export function noOccupancySince(endpoint: Zh.Endpoint, options: KeyValueAny, publish: Publish, action: 'start' | 'stop') {
     if (options && options.no_occupancy_since) {
         if (action == 'start') {
-            globalStore.getValue(endpoint, 'no_occupancy_since_timers', []).forEach((t: NodeJS.Timer) => clearTimeout(t));
+            globalStore.getValue(endpoint, 'no_occupancy_since_timers', []).forEach((t: ReturnType<typeof setInterval>) => clearTimeout(t));
             globalStore.putValue(endpoint, 'no_occupancy_since_timers', []);
 
             options.no_occupancy_since.forEach((since: number) => {
@@ -444,7 +449,7 @@ export function noOccupancySince(endpoint: Zh.Endpoint, options: KeyValueAny, pu
                 globalStore.getValue(endpoint, 'no_occupancy_since_timers').push(timer);
             });
         } else if (action === 'stop') {
-            globalStore.getValue(endpoint, 'no_occupancy_since_timers', []).forEach((t: NodeJS.Timer) => clearTimeout(t));
+            globalStore.getValue(endpoint, 'no_occupancy_since_timers', []).forEach((t: ReturnType<typeof setInterval>) => clearTimeout(t));
             globalStore.putValue(endpoint, 'no_occupancy_since_timers', []);
         }
     }
@@ -568,6 +573,7 @@ exports.saveSceneState = saveSceneState;
 exports.sleep = sleep;
 exports.toSnakeCase = toSnakeCase;
 exports.toCamelCase = toCamelCase;
+exports.getLabelFromName = getLabelFromName;
 exports.normalizeCelsiusVersionOfFahrenheit = normalizeCelsiusVersionOfFahrenheit;
 exports.deleteSceneState = deleteSceneState;
 exports.getSceneState = getSceneState;

@@ -432,12 +432,13 @@ const converters = {
         options: [exposes.options.precision('humidity'), exposes.options.calibration('humidity')],
         convert: (model, msg, publish, options, meta) => {
             const humidity = parseFloat(msg.data['measuredValue']) / 100.0;
+            const property = postfixWithEndpointName('humidity', msg, model, meta);
 
             // https://github.com/Koenkk/zigbee2mqtt/issues/798
             // Sometimes the sensor publishes non-realistic vales, it should only publish message
             // in the 0 - 100 range, don't produce messages beyond these values.
             if (humidity >= 0 && humidity <= 100) {
-                return {humidity: calibrateAndPrecisionRoundOptions(humidity, options, 'humidity')};
+                return {[property]: calibrateAndPrecisionRoundOptions(humidity, options, 'humidity')};
             }
         },
     },
@@ -779,7 +780,7 @@ const converters = {
         type: ['attributeReport', 'readResponse'],
         convert: (model, msg, publish, options, meta) => {
             const result = converters.metering.convert(model, msg, publish, options, meta);
-            if (result.hasOwnProperty('power')) {
+            if (result && result.hasOwnProperty('power')) {
                 result.power /= 1000;
             }
             return result;
@@ -2345,6 +2346,23 @@ const converters = {
             }
             if (msg.data.hasOwnProperty('61440')) {
                 result['alarm'] = (msg.data['61440'] == 0) ? false : true;
+            }
+            return result;
+        },
+    },
+    tuya_cover_options_2: {
+        cluster: 'closuresWindowCovering',
+        type: ['attributeReport', 'readResponse'],
+        convert: (model, msg, publish, options, meta) => {
+            const result = {};
+            if (msg.data.hasOwnProperty('moesCalibrationTime')) {
+                const value = parseFloat(msg.data['moesCalibrationTime']) / 100;
+                result[postfixWithEndpointName('calibration_time', msg, model, meta)] = value;
+            }
+            if (msg.data.hasOwnProperty('tuyaMotorReversal')) {
+                const value = msg.data['tuyaMotorReversal'];
+                const reversalLookup = {0: 'OFF', 1: 'ON'};
+                result[postfixWithEndpointName('motor_reversal', msg, model, meta)] = reversalLookup[value];
             }
             return result;
         },
@@ -3930,6 +3948,13 @@ const converters = {
             }
         },
     },
+    legrand_led_in_dark: {
+        cluster: 'manuSpecificLegrandDevices',
+        type: ['attributeReport', 'readResponse'],
+        convert: (model, msg, publish, options, meta) => {
+            return {led_in_dark: msg.data[1] === 1 ? 'ON' : 'OFF'};
+        },
+    },
     xiaomi_power: {
         cluster: 'genAnalogInput',
         type: ['attributeReport', 'readResponse'],
@@ -4016,7 +4041,7 @@ const converters = {
             if (['QBKG39LM', 'QBKG41LM', 'WS-EUK02', 'WS-EUK04', 'QBKG20LM', 'QBKG28LM', 'QBKG31LM'].includes(model.model)) {
                 buttonLookup = {41: 'left', 42: 'right', 51: 'both'};
             }
-            if (['QBKG25LM', 'QBKG26LM', 'QBKG29LM', 'QBKG34LM', 'ZNQBKG31LM', 'ZNQBKG26LM'].includes(model.model)) {
+            if (['QBKG25LM', 'QBKG26LM', 'QBKG29LM', 'QBKG32LM', 'QBKG34LM', 'ZNQBKG31LM', 'ZNQBKG26LM'].includes(model.model)) {
                 buttonLookup = {
                     41: 'left', 42: 'center', 43: 'right',
                     51: 'left_center', 52: 'left_right', 53: 'center_right',

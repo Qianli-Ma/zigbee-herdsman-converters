@@ -439,6 +439,13 @@ module.exports = [
         extend: tradfriExtend.light_onoff_brightness(),
     },
     {
+        zigbeeModel: ['\u001aTRADFRI bulb GU10 WW 345lm8'],
+        model: 'LED2104R3',
+        vendor: 'IKEA',
+        description: 'TRADFRI LED bulb GU10 WW 345 lumen, dimmable',
+        extend: tradfriExtend.light_onoff_brightness(),
+    },
+    {
         zigbeeModel: ['TRADFRIbulbG125E27WSopal470lm', 'TRADFRIbulbG125E26WSopal450lm'],
         model: 'LED1936G5',
         vendor: 'IKEA',
@@ -1010,7 +1017,7 @@ module.exports = [
     },
     {
         zigbeeModel: ['TRADFRI bulb GU10 CWS 345lm', 'TRADFRI bulb GU10 CWS 380lm'],
-        model: 'LED1923R5',
+        model: 'LED1923R5/LED1925G6',
         vendor: 'IKEA',
         description: 'TRADFRI LED bulb GU10 345 lumen, dimmable, white spectrum, color spectrum',
         extend: tradfriExtend.light_onoff_brightness_colortemp_color({colorTempRange: [250, 454]}),
@@ -1205,6 +1212,25 @@ module.exports = [
                 await reporting.bind(endpoint3, coordinatorEndpoint, ['heimanSpecificScenes']);
             }
             await reporting.batteryVoltage(endpoint1);
+        },
+    },
+    {
+        zigbeeModel: ['RODRET Dimmer'],
+        model: 'E2201',
+        vendor: 'IKEA',
+        description: 'RODRET wireless dimmer/power switch',
+        fromZigbee: [fz.battery, fz.command_on, fz.command_off, fz.command_move, fz.command_stop],
+        toZigbee: [tz.battery_percentage_remaining],
+        exposes: [
+            e.battery().withAccess(ea.STATE_GET),
+            e.action(['on', 'off', 'brightness_move_down', 'brightness_move_up', 'brightness_stop']),
+        ],
+        ota: ota.tradfri,
+        configure: async (device, coordinatorEndpoint, logger) => {
+            const endpoint = device.getEndpoint(1);
+            const binds = ['genOnOff', 'genLevelCtrl', 'genPollCtrl'];
+            await reporting.bind(endpoint, coordinatorEndpoint, binds);
+            await reporting.batteryPercentageRemaining(endpoint);
         },
     },
 ];

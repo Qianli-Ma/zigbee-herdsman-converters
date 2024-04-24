@@ -115,7 +115,21 @@ const definitions: Definition[] = [
         zigbeeModel: ['4512700'],
         model: '4512700',
         vendor: 'Namron',
-        description: 'ZigBee dimmer 400W',
+        description: 'Zigbee dimmer 400W',
+        extend: extend.light_onoff_brightness({noConfigure: true}),
+        ota: ota.zigbeeOTA,
+        configure: async (device, coordinatorEndpoint, logger) => {
+            await extend.light_onoff_brightness().configure(device, coordinatorEndpoint, logger);
+            const endpoint = device.getEndpoint(1);
+            await reporting.bind(endpoint, coordinatorEndpoint, ['genOnOff', 'genLevelCtrl']);
+            await reporting.onOff(endpoint);
+        },
+    },
+    {
+        zigbeeModel: ['4512760'],
+        model: '4512760',
+        vendor: 'Namron',
+        description: 'Zigbee dimmer 400W',
         extend: extend.light_onoff_brightness({noConfigure: true}),
         ota: ota.zigbeeOTA,
         configure: async (device, coordinatorEndpoint, logger) => {
@@ -130,6 +144,19 @@ const definitions: Definition[] = [
         model: '4512708',
         vendor: 'Namron',
         description: 'Zigbee LED dimmer',
+        extend: extend.light_onoff_brightness({noConfigure: true}),
+        configure: async (device, coordinatorEndpoint, logger) => {
+            await extend.light_onoff_brightness().configure(device, coordinatorEndpoint, logger);
+            const endpoint = device.getEndpoint(1);
+            await reporting.bind(endpoint, coordinatorEndpoint, ['genOnOff', 'genLevelCtrl']);
+            await reporting.onOff(endpoint);
+        },
+    },
+    {
+        zigbeeModel: ['1402767'],
+        model: '1402767',
+        vendor: 'Namron',
+        description: 'Zigbee dimmer 2-pol 250W',
         extend: extend.light_onoff_brightness({noConfigure: true}),
         configure: async (device, coordinatorEndpoint, logger) => {
             await extend.light_onoff_brightness().configure(device, coordinatorEndpoint, logger);
@@ -816,6 +843,20 @@ const definitions: Definition[] = [
         fromZigbee: [fz.ias_occupancy_alarm_1],
         toZigbee: [],
         exposes: [e.occupancy()],
+    },
+    {
+        zigbeeModel: ['4512764'],
+        model: '4512764',
+        vendor: 'Namron',
+        description: 'Zigbee water leak sensor',
+        fromZigbee: [fz.ias_water_leak_alarm_1, fz.battery],
+        toZigbee: [],
+        exposes: [e.battery_low(), e.water_leak(), e.battery()],
+        configure: async (device, coordinatorEndpoint, logger) => {
+            const endpoint = device.getEndpoint(1);
+            await reporting.bind(endpoint, coordinatorEndpoint, ['genPowerCfg']);
+            await reporting.batteryPercentageRemaining(endpoint);
+        },
     },
 ];
 
